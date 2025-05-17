@@ -56,6 +56,14 @@ public class RecipeManager {
         if (nexoItemId != null && NexoItems.itemFromId(nexoItemId) != null)
             return NexoItems.itemFromId(nexoItemId).build().clone();
 
+        Object itemObj = config.get(path + ".minecraft_item");
+        if (itemObj instanceof ItemStack) {
+            return ((ItemStack) itemObj).clone();
+        } else if (itemObj instanceof org.bukkit.configuration.ConfigurationSection) {
+            ItemStack item = config.getItemStack(path + ".minecraft_item");
+            if (item != null) return item.clone();
+        }
+
         String materialName = config.getString(path + ".minecraft_item");
         if(materialName == null) {
             NexoAddon.getInstance().getLogger().warning("Wrong item in " + path);
@@ -69,6 +77,14 @@ public class RecipeManager {
         String nexoItemId = config.getString(path + ".nexo_item");
         if (nexoItemId != null && NexoItems.itemFromId(nexoItemId) != null)
             return new RecipeChoice.ExactChoice(NexoItems.itemFromId(nexoItemId).build().clone());
+
+        Object itemObj = config.get(path + ".minecraft_item");
+        if (itemObj instanceof ItemStack) {
+            return new RecipeChoice.ExactChoice(((ItemStack) itemObj).clone());
+        } else if (itemObj instanceof org.bukkit.configuration.ConfigurationSection) {
+            ItemStack item = config.getItemStack(path + ".minecraft_item");
+            if (item != null) return new RecipeChoice.ExactChoice(item.clone());
+        }
 
         String materialName = config.getString(path + ".minecraft_item");
         assert materialName != null;
