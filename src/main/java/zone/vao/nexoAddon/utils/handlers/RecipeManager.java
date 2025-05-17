@@ -37,17 +37,17 @@ public class RecipeManager {
             throw new IllegalArgumentException("Invalid recipe configuration for " + recipeId);
         }
 
-        NamespacedKey key = new NamespacedKey(NexoAddon.getInstance(), recipeId);
+        NamespacedKey key = new NamespacedKey(NexoAddon.instance, recipeId);
 
-        if (NexoAddon.getInstance().getServer().getRecipe(key) == null) {
+        if (NexoAddon.instance.getServer().getRecipe(key) == null) {
             NexoAddon.instance.foliaLib.getScheduler().runNextTick(registerRecipe -> {
                 SmithingTransformRecipe recipe = new SmithingTransformRecipe(key, resultTemplate, template, base, addition);
-                NexoAddon.getInstance().getServer().addRecipe(recipe);
+                NexoAddon.instance.getServer().addRecipe(recipe);
                 registeredRecipes.add(key);
-                NexoAddon.getInstance().getLogger().info("Registered smithing transform recipe: " + recipeId);
+                NexoAddon.instance.getLogger().info("Registered smithing transform recipe: " + recipeId);
             });
         } else {
-            NexoAddon.getInstance().getLogger().info("Recipe " + recipeId + " already exists, skipping.");
+            NexoAddon.instance.getLogger().info("Recipe " + recipeId + " already exists, skipping.");
         }
     }
 
@@ -57,6 +57,10 @@ public class RecipeManager {
             return NexoItems.itemFromId(nexoItemId).build().clone();
 
         Object itemObj = config.get(path + ".minecraft_item");
+        if (itemObj instanceof String materialName) {
+            Material material = Material.matchMaterial(materialName);
+            return material != null ? new ItemStack(material).clone() : null;
+        }
         if (itemObj instanceof ItemStack) {
             return ((ItemStack) itemObj).clone();
         } else if (itemObj instanceof org.bukkit.configuration.ConfigurationSection) {
@@ -66,7 +70,7 @@ public class RecipeManager {
 
         String materialName = config.getString(path + ".minecraft_item");
         if(materialName == null) {
-            NexoAddon.getInstance().getLogger().warning("Wrong item in " + path);
+            NexoAddon.instance.getLogger().warning("Wrong item in " + path);
             return null;
         }
         Material material = Material.matchMaterial(materialName);
@@ -79,6 +83,10 @@ public class RecipeManager {
             return new RecipeChoice.ExactChoice(NexoItems.itemFromId(nexoItemId).build().clone());
 
         Object itemObj = config.get(path + ".minecraft_item");
+        if (itemObj instanceof String materialName) {
+            Material material = Material.matchMaterial(materialName);
+            return material != null ? new RecipeChoice.ExactChoice(new ItemStack(material).clone()) : null;
+        }
         if (itemObj instanceof ItemStack) {
             return new RecipeChoice.ExactChoice(((ItemStack) itemObj).clone());
         } else if (itemObj instanceof org.bukkit.configuration.ConfigurationSection) {
@@ -87,7 +95,10 @@ public class RecipeManager {
         }
 
         String materialName = config.getString(path + ".minecraft_item");
-        assert materialName != null;
+        if(materialName == null) {
+            NexoAddon.instance.getLogger().warning("Wrong item in " + path);
+            return null;
+        }
         Material material = Material.matchMaterial(materialName);
         return material != null ? new RecipeChoice.ExactChoice(new ItemStack(material).clone()) : null;
     }
@@ -96,8 +107,8 @@ public class RecipeManager {
         if(registeredRecipes.isEmpty()) return;
 
         for (NamespacedKey key : registeredRecipes) {
-            NexoAddon.getInstance().getServer().removeRecipe(key);
-            NexoAddon.getInstance().getLogger().info("Removed recipe: " + key.getKey());
+            NexoAddon.instance.getServer().removeRecipe(key);
+            NexoAddon.instance.getLogger().info("Removed recipe: " + key.getKey());
         }
         registeredRecipes.clear();
     }
