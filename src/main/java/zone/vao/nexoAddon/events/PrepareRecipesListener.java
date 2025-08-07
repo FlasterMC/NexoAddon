@@ -18,6 +18,7 @@ import org.bukkit.persistence.PersistentDataType;
 import zone.vao.nexoAddon.NexoAddon;
 import zone.vao.nexoAddon.utils.VersionUtil;
 import zone.vao.nexoAddon.utils.handlers.RecipeManager;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -61,15 +62,21 @@ public class PrepareRecipesListener implements Listener {
 
     if (baseMeta == null || resultMeta == null) return;
 
-    resultMeta.displayName(baseMeta.hasDisplayName() ? baseMeta.displayName() : resultMeta.displayName());
+    var recipeConfig = RecipeManager.getRecipeConfig();
+    boolean copyDisplayName = recipeConfig != null && recipeConfig.getBoolean(key.getKey() + ".copy_display_name", false);
+    boolean copyTrim = recipeConfig != null && recipeConfig.getBoolean(key.getKey() + ".copy_trim", false);
+    boolean copyPdc = recipeConfig != null && recipeConfig.getBoolean(key.getKey() + ".copy_pdc", false);
+    boolean copyEnchants = recipeConfig == null || recipeConfig.getBoolean(key.getKey() + ".copy_enchantments", true);
+    boolean keepDurability = recipeConfig == null || recipeConfig.getBoolean(key.getKey() + ".keep_durability", true);
+
+    // Копируем название только если это явно разрешено в конфиге
+    if (copyDisplayName && baseMeta.hasDisplayName()) {
+      resultMeta.displayName(baseMeta.displayName());
+    }
+    
     if (!resultMeta.hasLore() && baseMeta.hasLore()) {
       resultMeta.lore(baseMeta.lore());
     }
-
-    boolean copyTrim = RecipeManager.getRecipeConfig().getBoolean(key.getKey() + ".copy_trim", false);
-    boolean copyPdc = RecipeManager.getRecipeConfig().getBoolean(key.getKey() + ".copy_pdc", false);
-    boolean copyEnchants = RecipeManager.getRecipeConfig().getBoolean(key.getKey() + ".copy_enchantments", true);
-    boolean keepDurability = RecipeManager.getRecipeConfig().getBoolean(key.getKey() + ".keep_durability", true);
 
     if (copyEnchants) {
       baseMeta.getEnchants().forEach((enchant, level) -> resultMeta.addEnchant(enchant, level, true));

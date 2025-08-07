@@ -7,6 +7,7 @@
 #  copy_pdc: false                         # Should keep pdc of base item?
 #  copy_trim: false                        # Should the result retain the trim design from the base item? Defaults to true
 #  copy_enchantments: true                 # Should enchantments from the base item be transferred to the result? Defaults to true
+#  copy_display_name: false                # Should the display name from the base item be copied to result? Defaults to false
 #  result:
 #    minecraft_item: NETHERITE_CHESTPLATE  # Specify a Minecraft item or use nexo_item for custom items (e.g., nexo_item: custom_item_id)
 #  template:
@@ -15,3 +16,17 @@
 #    minecraft_item: LEATHER_CHESTPLATE
 #  addition:
 #    minecraft_item: NETHER_STAR
+
+# Пример рецепта, где результат сохраняет свое название (а не копирует с базового предмета)
+#soul_nugget_recipe:                       # Уникальный идентификатор рецепта
+#  copy_display_name: false                # НЕ копировать название с базового предмета (по умолчанию false)
+#  copy_enchantments: true                 # Копировать зачарования
+#  keep_durability: true                   # Сохранить прочность
+#  result:
+#    nexo_item: soul_nugget                # Результат - кастомный предмет с собственным названием
+#  template:
+#    minecraft_item: NETHERITE_UPGRADE_SMITHING_TEMPLATE
+#  base:
+#    nexo_item: custom_axe                 # Базовый предмет (может иметь переименование)
+#  addition:
+#    minecraft_item: SOUL_SAND
